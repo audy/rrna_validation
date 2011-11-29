@@ -1,0 +1,6 @@
+experiment_*
+data*
+bin/dnaml
+bin/raxml
+bin/treedist
+bin/treedistpair.pl
