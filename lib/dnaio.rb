@@ -35,4 +35,12 @@ class Dna # nucleotide record
   def length
     @sequence.length
   end
+  
+  def [](i)
+    @sequence[i]
+  end
+  
+  def []=(i, j)
+    @sequence[i] = j
+  end
 end

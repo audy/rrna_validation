@@ -3,18 +3,17 @@
 DATABASE = 'database.gz'
 CORES = 24
 
-sample_sizes = [10, 20, 25, 30, 50]
+sample_sizes = [10, 20, 30]
 ranges = [
-  [300, 400],
-  [400, 500],
+  [0, 100],
+  [200, 300],
   [500, 600],
   [600, 700],
   [700, 800],
   [800, 900],
   [900, 1000]
 ]
-sample_sizes = [10]
-ranges = [[100, 200]]
+
 bootstraps = 100
 
 require 'zlib'
@@ -30,6 +29,8 @@ end
 
 def make_subset(args={})
   
+  tries = 5
+  
   sample_size = args[:sample_size]
   start, stop = args[:start], args[:stop]
   database = args[:database]
@@ -38,10 +39,6 @@ def make_subset(args={})
   puts 'Creating a subset of the data'
   puts "SAMPLE_SIZE = #{sample_size}"
   puts "REGION = #{start}, #{stop}"
-  
-  # grab a random sample of sequence from DB
-  database.shuffle!
-  $stderr.puts "loaded #{database.length} records"
 
   full_out = File.open("#{out_folder}/full.fasta", 'w')
   trun_out = File.open("#{out_folder}/truncated.fasta", 'w')
@@ -49,21 +46,43 @@ def make_subset(args={})
   samples_remaining = sample_size
   
   while samples_remaining > 0
-    record = database.pop
+    record = database.shuffle.first
+    
     if record == nil
-      fail 'ran out of records in database'
+      puts '!! ran out of records in database'
+      if tries > 0
+        puts '!! gonna retry'
+      else
+        puts '!! ran out of tries FFFFFFFUUUUUUUUUUUUUUUUUUUUUUUUUUU'
+        `echo 'experiment fucking broke' | mail -s 'experiment fucking broke!' adavisr@ufl.edu`
+        fail
+      end
+      full_out = File.open("#{out_folder}/full.fasta", 'w')
+      trun_out = File.open("#{out_folder}/truncated.fasta", 'w')
+      samples_remaining = sample_size
+      tries -= 1
+      next
     end
+    
     truncated_sequence = record.sequence[start..stop]
+    if truncated_sequence == nil
+      puts "sequence is too short?"
+      return nil
+    end
     if truncated_sequence.tr(' -.', '').length == 0
+      puts "truncated to hell"
       next
     else
       samples_remaining -= 1   
       full_out.puts record
-      record.sequence = truncated_sequence
-      trun_out.puts record
+      truncated_sequence
+      trun_out.puts ">#{record.name}\n#{truncated_sequence}"
     end
   end
   [full_out, trun_out].each { |h| h.close }
+end
+
+def run_clustalw(args={})
 end
 
 def convert_alignment(args={})
@@ -77,8 +96,12 @@ def convert_alignment(args={})
   
 end
 
-# Keep this in memory (Why not?!)
+# Load database and keep it in memory
+puts "loading database... this may take a while"
 database = load_database(DATABASE)
+puts "loaded #{database.length} records"
+
+puts "commencing science!"
 
 bootstraps.times do |b|
   sample_sizes.each do |sample_size|
@@ -93,33 +116,38 @@ bootstraps.times do |b|
       # create a random subset of the database
       # including the truncated sequence file
       puts "creating subset"
-      make_subset(
+      r = make_subset(
         :sample_size => sample_size,
         :start => start, 
         :stop => stop,
         :out_folder => out_folder,
         :database => database)
+      if r == nil
+        puts "skipping range"
+        next
+      end
       
-      puts "converting alignments to phylip"
       # convert full and truncated alignments to Phylip format
+      puts "converting alignments to phylip"
       ['full', 'truncated'].each do |f|
         convert_alignment(:in => "#{out_folder}/#{f}.fasta", :out => "#{out_folder}/#{f}.phy")
       end
       
-      puts "computing tree"
       # compute the GTRCAT ML tree using RAxML
       ['full', 'truncated'].each do |f|
-        `bin/raxml -m GTRCAT -n tree -T #{CORES} -s #{out_folder}/#{f}.phy > #{out_folder}/raxml.log`
-        `mv RAxML_bestTree.tree #{out_folder}/#{f}.tree`
+        puts "computing #{f} tree"
+        `bin/raxml -m GTRCAT -n #{f} -T #{CORES} -s #{out_folder}/#{f}.phy > #{out_folder}/raxml.log`
+        sleep 1
+        `mv RAxML_bestTree.#{f} #{out_folder}/#{f}.tree`
         `mv RAxML* #{out_folder}`
         if $?.to_i != 0
           puts "RAXML crashed!!!"
         end
-        `rm RAxML*`
       end
       
-      puts "computing tree difference"
       # compute and record difference between full and truncated tree
+      puts "computing tree difference"
+      
       `rm -f outfile`
       `cat #{out_folder}/truncated.tree #{out_folder}/full.tree > intree`
       `bin/treedist < treedistargs > /dev/null`
