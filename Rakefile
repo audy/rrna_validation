@@ -3,7 +3,7 @@ require 'open-uri'
 
 DATABASE = 'http://www.arb-silva.de/typo3conf/ext/myth_repository/secure.php?u=0&file=fileadmin/silva_databases/release_108/Exports/SSURef_108_tax_silva.fasta.tgz&t=1322768569&hash=71cea202d8c9e82d5cb1fb82811f2e6a'
 
-task :default => ['database.gz', 'bin/treedistpair', 'bin/raxml'] do
+task :default => ['database.gz', 'bin/treedist', 'bin/muscle', 'bin/raxml', 'database.gz'] do
   
 end
 
