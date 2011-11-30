@@ -1,5 +1,8 @@
 experiment_*
 data*
+RAxML*
+intree
+bin/muscle
 bin/dnaml
 bin/raxml
 bin/treedist
