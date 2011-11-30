@@ -46,7 +46,6 @@ class Experiment
     report(:message => "started: #{Time.now}\nsize: #{@sample_size}, start: #{@start}, stop: #{@stop}") do
       self.run
     end
-    puts @score
   end
   
   def run
@@ -105,7 +104,6 @@ class Experiment
     
       data = File.read('outfile')
       @score = data.match(/Trees 1 and 2:\s*(.*)/).to_a[1]
-      puts @score
     end
   end
 end
@@ -133,7 +131,6 @@ bootstraps.times do |b|
       File.open('results.txt', 'a') do |h|
         h.puts [b, sample_size, start, stop, experiment.score].join("\t")
       end
-      p experiment.score
     end
   end
 end
