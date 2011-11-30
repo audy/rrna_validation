@@ -5,7 +5,7 @@ require 'bio'
 def run_alignment(args={})
   input = args[:in]
   output = args[:out]
-  `bin/muscle -in #{input} -out #{output}`
+  `bin/muscle -in #{input} -out #{output} -quiet`
 end
 
 # load compressed fasta file into an array of records
@@ -24,10 +24,6 @@ def make_subset(args={})
   start, stop = args[:start], args[:stop]
   database = args[:database]
   out_folder = args[:out_folder]
-  
-  puts 'Creating a subset of the data'
-  puts "SAMPLE_SIZE = #{sample_size}"
-  puts "REGION = #{start}, #{stop}"
 
   full_out = File.open("#{out_folder}/full.fasta", 'w')
   trun_out = File.open("#{out_folder}/truncated.fasta", 'w')
@@ -51,7 +47,7 @@ def make_subset(args={})
       tries -= 1
       next
     end
-    
+
     truncated_sequence = record.sequence[start..stop]
 
     if truncated_sequence == nil
