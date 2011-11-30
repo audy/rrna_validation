@@ -16,7 +16,9 @@ ranges = [
 
 bootstraps = 100
 
-require File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib', 'dnaio'))
+# this is ugly:
+['dnaio', 'misc'].each { |x| require File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib', x )) }
+
 require 'zlib'
 require 'bio'
 

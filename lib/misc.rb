@@ -3,8 +3,8 @@ require 'bio'
   
 # run alignment
 def run_alignment(args={})
-  input = args[:input]
-  output = args[:output]
+  input = args[:in]
+  output = args[:out]
   `bin/muscle -in #{input} -out #{output}`
 end
 
