@@ -1,7 +1,7 @@
 require 'zlib'
 require 'open-uri'
 
-DATABASE = 'http://www.arb-silva.de/typo3conf/ext/myth_repository/secure.php?u=0&file=fileadmin/silva_databases/release_108/Exports/SSURef_108_tax_silva_full_align_trunc.fasta.tgz&t=1322679885&hash=fb69df7a1c9db2cd7375e9e0caefc61a'
+DATABASE = 'http://www.arb-silva.de/typo3conf/ext/myth_repository/secure.php?u=0&file=fileadmin/silva_databases/release_108/Exports/SSURef_108_tax_silva.fasta.tgz&t=1322768569&hash=71cea202d8c9e82d5cb1fb82811f2e6a'
 
 task :default => ['database.gz', 'bin/treedistpair', 'bin/raxml'] do
   
@@ -20,4 +20,13 @@ file 'bin/raxml' do
   sh 'cd standard-RAxML; make --file=Makefile.SSE3.PTHREADS.gcc'
   sh 'mv standard-RAxML/raxmlHPC-PTHREADS-SSE3 bin/raxml'
   sh 'rm -rf standard-RAxML'
+end
+
+file 'database.gz' do
+  sh "curl -L \"#{DATABASE}\" | tar -zxvOf - SSURef_108_tax_silva.fasta | gzip > database.gz"
+end
+
+file 'bin/treedist' do
+  sh "hdid http://t.co/v89MflJd"
+  puts "Please manually put treedist in bin. THANK YOU VERY MUCH!!!!"
 end
