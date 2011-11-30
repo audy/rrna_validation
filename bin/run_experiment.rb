@@ -9,12 +9,19 @@ SEED = 42 # random seed
 sample_sizes = [10, 20, 30]
 ranges = [
   [0, 100],
-  [200, 300],
+  [50, 150],
+  [100, 200],
+  [250, 350],
+  [400, 450],
+  [450, 550],
   [500, 600],
+  [550, 650],
   [600, 700],
-  [700, 800],
+  [650, 750],
+  [700, 850],
+  [750, 850],
   [800, 900],
-  [900, 1000]
+  [850, 950],
 ]
 
 bootstraps = 100
@@ -40,7 +47,10 @@ class Experiment
     
     `mkdir -p #{@out_folder}`
     
-    self.run
+    
+    report(:message => "started: #{Time.now}\nsize: #{@sample_size}, start: #{@start}, stop: #{@stop}") do
+      self.run
+    end
   end
   
   def run
@@ -128,8 +138,6 @@ bootstraps.times do |b|
       File.open('results.txt', 'a') do |h|
         h.puts [b, sample_size, start, stop, score].join("\t")
       end
-      
-    exit
     end
   end
 end
