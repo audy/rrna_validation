@@ -15,13 +15,7 @@ ranges = [
   [400, 450],
   [450, 550],
   [500, 600],
-  [550, 650],
-  [600, 700],
-  [650, 750],
-  [700, 850],
-  [750, 850],
-  [800, 900],
-  [850, 950],
+
 ]
 
 bootstraps = 100
@@ -36,6 +30,7 @@ require 'command_line_reporter'
 
 class Experiment
   include CommandLineReporter
+  attr_accessor :sample_size, :range, :start, :stop, :out_folder, :database, :score
   
   def initialize(args={})
     @sample_size = args[:sample_size]
@@ -51,6 +46,7 @@ class Experiment
     report(:message => "started: #{Time.now}\nsize: #{@sample_size}, start: #{@start}, stop: #{@stop}") do
       self.run
     end
+    puts @score
   end
   
   def run
@@ -108,10 +104,9 @@ class Experiment
       `cp intree #{@out_folder}/combined_trees.txt`
     
       data = File.read('outfile')
-      score = data.match(/Trees 1 and 2:\s*(.*)/).to_a[1]
-      score
-      
-    end  
+      @score = data.match(/Trees 1 and 2:\s*(.*)/).to_a[1]
+      puts @score
+    end
   end
 end
 
@@ -124,10 +119,10 @@ bootstraps.times do |b|
     ranges.each do |start, stop|
       
       # create output folder
-      out_folder = "out/experiment_#{@b}_#{@sample_size}_#{@start}_#{@stop}"
+      out_folder = "out/experiment_#{b}_#{sample_size}_#{start}_#{stop}"
       
       # compute experiment
-      score = Experiment.new(
+      experiment = Experiment.new(
         :sample_size => sample_size,
         :range => [start, stop],
         :out_folder => out_folder,
@@ -136,8 +131,9 @@ bootstraps.times do |b|
       
       # log results
       File.open('results.txt', 'a') do |h|
-        h.puts [b, sample_size, start, stop, score].join("\t")
+        h.puts [b, sample_size, start, stop, experiment.score].join("\t")
       end
+      p experiment.score
     end
   end
 end
