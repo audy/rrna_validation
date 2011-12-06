@@ -49,9 +49,9 @@ def make_subset(args={})
     end
 
     truncated_sequence = record.sequence[start..stop]
-
+    
     if truncated_sequence == nil
-      fail "sequence is too short?"
+      $stderr.puts "sequence is too short?"
     elsif truncated_sequence.tr(' -.', '').length == 0
       next
     else
