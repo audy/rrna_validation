@@ -22,11 +22,14 @@ file 'bin/raxml' do
   sh 'rm -rf standard-RAxML'
 end
 
-file 'database.gz' do
-  sh "curl -L \"#{DATABASE}\" | tar -zxvOf - SSURef_108_tax_silva.fasta | gzip > database.gz"
+file 'greengenes_core.fasta.gz' do
+  'curl http://greengenes.lbl.gov/Download/Sequence_Data/Fasta_data_files/core_set_aligned.fasta | gzip > greengenes_core.fasta.gz'
 end
 
 file 'bin/treedist' do
+  puts 'FYI: This only works on Mac OSX Intel!'
+  puts 'You can download the binaries manually from http://evolution.gs.washington.edu/phylip/download/'
+  puts 'put the treedist program in bin/'
   sh "hdid http://t.co/v89MflJd"
   puts "Please manually put treedist in bin. THANK YOU VERY MUCH!!!!"
 end

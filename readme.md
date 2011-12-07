@@ -2,6 +2,22 @@
 
 Austin G. Davis-Richardson
 
-## Links
+This was an experiment I did for ZOO6927 - Methods of Phylogenetic Inference. I attempted to benchmark the ability of different regions along the 16S rRNA gene in bacteria for making accurate phylogenetic trees. This was accomplished by creating trees for random sets of taxa with full-length and truncated alignments.
 
-- [Fast UniFrac](http://pycogent.sourceforge.net/examples/unifrac.html?highlight=unifrac)
+## Installation
+
+Works on Ruby 1.9 on Mac OS X. If you want to run on linux, you will have to supply your own binaries for treedist, and MUSCLE. RAxML is compiled from source.
+
+Install like this:
+
+    $ sudo gem install bundle
+    $ bundle
+    $ rake
+    
+At this point you should have all necessary binaries and the greengenes database. You can run the experiment by typing:
+
+    $ bin/run_experiment.rb greengenes_core.fasta.gz
+    
+To alter the parameters of the experiment, you will need to edit `bin/run_experiment.rb` yourself.
+
+Good luck and have fun!
