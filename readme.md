@@ -6,7 +6,7 @@ This was an experiment I did for ZOO6927 - Methods of Phylogenetic Inference. I 
 
 ## Installation
 
-Works on Ruby 1.9 on Mac OS X. If you want to run on linux, you will have to supply your own binaries for treedist, and MUSCLE. RAxML is compiled from source.
+Works on Ruby 1.9 on Mac OS X. If you want to run on Linux, you will have to supply your own binaries for treedist, and MUSCLE. If you want to run on Windows you will have to delete windows and install Linux. RAxML is compiled from source.
 
 Install like this:
 
