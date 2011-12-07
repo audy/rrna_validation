@@ -19,49 +19,40 @@ end
 
 # grab a subset of the data and save it to a specified file
 def make_subset(args={})  
-  tries = args[:tries] || 5
-  sample_size = args[:sample_size]
   start, stop = args[:start], args[:stop]
-  database = args[:database]
+  records = args[:records]
   out_folder = args[:out_folder]
-
-  full_out = File.open("#{out_folder}/full.fasta", 'w')
-  trun_out = File.open("#{out_folder}/truncated.fasta", 'w')
-
-  samples_remaining = sample_size
   
-  while samples_remaining > 0
-    record = database.shuffle.first
-    
-    if record == nil
-      puts '!! ran out of records in database'
-      if tries > 0
-        puts '!! gonna retry'
-      else
-        puts '!! ran out of tries'
-        fail
-      end
-      full_out = File.open("#{out_folder}/full.fasta", 'w')
-      trun_out = File.open("#{out_folder}/truncated.fasta", 'w')
-      samples_remaining = sample_size
-      tries -= 1
-      next
-    end
-
-    truncated_sequence = record.sequence[start..stop]
-    
-    if truncated_sequence == nil
-      $stderr.puts "sequence is too short?"
-    elsif truncated_sequence.tr(' -.', '').length == 0
-      next
-    else
-      samples_remaining -= 1   
-      full_out.puts record
-      truncated_sequence
-      trun_out.puts ">#{record.name}\n#{truncated_sequence}"
+  # output full records
+  File.open("#{out_folder}/full.fasta", 'w') do |handle|
+    records.each do |record|
+      handle.puts record
     end
   end
-  [full_out, trun_out].each { |h| h.close }
+  
+  # Output truncated records
+  nucleotides = 0
+  i = 0
+  while (nucleotides/sample_size.to_f < (stop - start))
+    i += 1
+    records.each do |record|
+      n = record.sequence[i]
+      # normal and ambiguous nucleotides
+      if n =~ /[RYSWKMBDHVNGAUTC]/i
+        nucleotides += 1
+      elsif n =~ /[-\.]/
+        # do nothing about gaps
+      else
+        fail "weird character: #{n}"
+      end
+    end
+  end
+  
+  File.open("#{out_folder}/truncated.fasta", 'w') do |handle|
+    records.each do |record|
+      handle.puts ">#{record.name}\n#{record.sequence[start, start+i]}"
+    end
+  end
 end
 
 # convert fasta alignment to phylip format
